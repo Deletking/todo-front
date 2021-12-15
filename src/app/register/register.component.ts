@@ -20,7 +20,9 @@ export class RegisterComponent implements OnInit {
     }
 
     const {username, password} = registerForm.value;
-    // this.apiService.
+    this.apiService.register(username, password).subscribe( res => {
+      registerForm.reset();
+    });
   }
 
 }
