@@ -1,4 +1,6 @@
+import { NgForm } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../services/api.services';
 
 @Component({
   selector: 'app-register',
@@ -7,9 +9,18 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RegisterComponent implements OnInit {
 
-  constructor() { }
+  constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
+  }
+
+  registerUser(registerForm: NgForm) {
+    if(registerForm.invalid) {
+      return;
+    }
+
+    const {username, password} = registerForm.value;
+    // this.apiService.
   }
 
 }

@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +38,10 @@ export class ApiService {
     });
   }
 
+  register(username: string, password: string) {
+    return this.http.post(`${this.APIURL}/auth/register`, {username, password});
+  }
+
   login(username: string, password: string) {
     this.http.post(`${this.APIURL}/auth/login`, {username, password})
       // @ts-ignore
@@ -53,8 +57,60 @@ export class ApiService {
             this.router.navigateByUrl('/').then();
           });
         }
-      }, (err: HttpErrorResponse)  => console.log(err.message) );
+      }, (err: HttpErrorResponse)  => {
+        this.toast.error('Authentication failed, try again', '', {
+          timeOut: 1000
+        })
+      } );
   }
 
+  logout() {
+    this.token = '';
+    this.jwtToken$.next(this.token);
+    this.toast.success('Logged out successully', '', {
+      timeOut: 500
+    }).onHidden.subscribe( () => {
+      localStorage.removeItem('act');
+      this.router.navigateByUrl('login').then();
+    })
+    return '';
+  }
 
+  createTodo(title: string, description: string) {
+    return this.http.post(`${this.APIURL}/todos`, { title, description }, {
+      headers: {
+        Authorization: `Bearer ${this.token}`
+      }
+    })
+  }
+
+  updateStatus(statusValue: string, todoId: number) {
+    return this.http.patch(`${this.APIURL}/todos/${todoId}`, { status: statusValue }, {
+      headers: {
+        Authorization: `Bearer ${this.token}`
+      }
+    }).pipe(
+      tap( res => {
+        if (res) {
+          this.toast.success('Status updated successfully', '', {
+            timeOut: 1000
+          });
+        }
+      })
+    );
+  }
+
+  deleteTodo(todoId: number) {
+    return this.http.delete(`${this.APIURL}/todos/${todoId}`, {
+      headers: {
+        Authorization: `Bearer ${this.token}`
+      }
+    }).pipe(
+      tap( (res: any) => {
+        if( res.success) {
+          this.toast.success('Todo deleted successfully')
+        }
+      })
+    );
+  }
 }
