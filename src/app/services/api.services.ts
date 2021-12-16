@@ -10,7 +10,8 @@ import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 export class ApiService {
   private token: string = '';
   private jwtToken$: BehaviorSubject<string> = new BehaviorSubject<string>(this.token);
-  private APIURL = 'http://localhost:3000/api';
+  // private APIURL = 'http://localhost:3000/api';
+  private APIURL = 'https://enigmatic-lowlands-78735.herokuapp.com/api';
 
   constructor(
     private http: HttpClient,
@@ -59,7 +60,7 @@ export class ApiService {
           this.toast.success('Login successul, redirecting now...', 'Login', {
             timeOut: 700,
             positionClass: 'toast-top-center'
-          }).onHidden.toPromise().then( () => {
+          }).onHidden.subscribe( () => {
             this.jwtToken$.next(this.token);
             localStorage.setItem('act', btoa(this.token));
             this.router.navigateByUrl('/').then();
